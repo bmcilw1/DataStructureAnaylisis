@@ -163,18 +163,15 @@ void Insert(Node *& p, string s){
         string pEnd = p->label.substr(i, p->label.length());
 
         p->label = pStart;
+        
+        Node * q4 = new Node;
+        q4->label = pEnd;
+        q4->fChild = p->fChild;
+        q4->rSib = NULL;
+        q4->isWord = p->isWord;
+        p->fChild = q4;
         p->isWord = false;
-
-        if(!p->fChild){
-            Node * q4 = new Node;
-            q4->label = pEnd;
-            q4->fChild = q4->rSib = NULL;
-            q4->isWord = true;
-            p->fChild = q4;
-            n++;
-        }
-        else
-            Insert(p->fChild, pEnd);
+        n++;
 
         s = s.substr(i, s.length());
         Insert(p->fChild, s);
