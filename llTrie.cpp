@@ -85,14 +85,10 @@ void PreOrder(Node * p, int & ID){
     if(p){
         p->id = ID;
         ID++;
-        if(p->fChild){
+        if(p->fChild)
             PreOrder(p->fChild, ID);
-            ID++;
-            if (p->fChild->rSib){
-                PreOrder(p->fChild->rSib, ID);
-                ID++;
-            }
-        }
+        if (p->rSib)
+            PreOrder(p->rSib, ID);
     }
 }
 void Insert(Node *& p, string s){
