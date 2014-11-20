@@ -36,7 +36,7 @@ public:
         }
     }
     void InitializeHash(){
-        A = new Node * [26 * n]; 
+        A = new Node * [27 * n]; 
         length = 0; 
         for (int i = 0; i < (26 * n); i++)
             A[i] = NULL;
@@ -206,12 +206,12 @@ void HashFill(Node *& x, int & pID){
     if(x){
         if(x != root)
             H.HashInsert(pID, x);
-        
-        if(x->fChild){
+
+        if(x->fChild)
             HashFill(x->fChild, x->id);
-            if(x->fChild->rSib)
-                HashFill(x->fChild->rSib, x->id);
-        }
+
+        if(x->rSib)
+            HashFill(x->rSib, pID);
     }
 }
 
