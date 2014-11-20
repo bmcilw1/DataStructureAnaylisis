@@ -283,7 +283,6 @@ int main(){
     llTrie trie;
     string fDic;
     string fQuery;
-    struct sysinfo memInfo;
     long long memInit, memEnd;
 
     cout<<"Enter name of dictionary file: ";
@@ -296,6 +295,7 @@ int main(){
     InputD(trie, fDic);
     t.stopTimer();
     cout<<"Insering into the linked list took "<<t.getElapsedTime()<<" micro-seconds."<<endl;
+    struct sysinfo memInfo;
     memEnd = memInfo.totalram - memInfo.freeram;
     cout<< "Total memory used: "<< memEnd <<" bytes."<<endl<<endl;
 
@@ -308,7 +308,8 @@ int main(){
     trie.FillHash();
     t.stopTimer();
     cout<<"Insering into the Hash took "<<t.getElapsedTime()<<" micro-seconds."<<endl;
-    memEnd = memInfo.totalram - memInfo.freeram;
+    struct sysinfo memInfo2;
+    memEnd = memInfo2.totalram - memInfo2.freeram;
     cout<< "Total memory used: "<< memEnd <<" bytes."<<endl<<endl;
 
     t.startTimer();
@@ -316,7 +317,8 @@ int main(){
     t.stopTimer();
     cout<<"Hash queries took "<<t.getElapsedTime()<<" micro-seconds."<<endl<<endl;
 
-    cout<< "Number of nodes: "<< n <<endl<<endl;
+    cout<< "Number of nodes: "<< n <<endl
+    <<"**Note** the hash memory is dependent on the linked list memory. "<<endl<<endl;
 
     return 0;
 }
