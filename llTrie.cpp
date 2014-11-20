@@ -30,27 +30,21 @@ public:
     int length;
 
     Hash(){ A = NULL; length = 0;}
-    ~Hash(){
-        for (int i = 0; i < length; i++){
-            A[i] = NULL;
-        }
-    }
+    ~Hash(){ ; }
     void InitializeHash(){
         A = new Node * [27 * n]; 
         length = 0; 
-        for (int i = 0; i < (26 * n); i++)
+        for (int i = 0; i < (27 * n); i++)
             A[i] = NULL;
     }
     void HashInsert(int pID, Node * x){ 
         int key = ((x->label[0] - 'a') + (pID * 26));
-        cout<< "Key: "<< key << " ";
         if(A[key])
-            cout<<"Collision occured!!\n";
-        else if (key > 20 *n)
-            cout<< "Hash function stepped out of bounds!!\n";
+        cout<< "Key: "<< key << " Label: "<< x->label <<" Collision occured!\n";
+        else if (key > 27 *n)
+        cout<< "Key: "<< key <<" Hash function stepped out of bounds!\n";
         else{
             A[key] = x;
-            cout<< "Add Successful!\n";
             length++;
         }
     }
@@ -182,11 +176,11 @@ bool Query(Node *& p, string s){
     while(p && i < p->label.length() && i < s.length() && p->label[i] == s[i])
         i++;
     
-    if (i == 0 && p->rSib)
-        return Query(p->rSib, s);
-
-    else if(i == s.length() && i == p->label.length())
+    if(i == s.length() && i == p->label.length())
         return p->isWord;
+
+    else if (i == 0 && p->rSib)
+        return Query(p->rSib, s);
 
     else if (p->label.length() == i && p->fChild){
         s = s.substr(i, s.length());
@@ -197,9 +191,30 @@ bool Query(Node *& p, string s){
         return false;
 }
 
-bool HashQuery(Node *& p, string s){
-    Node * x = H.HashSearch(p->id, p->label[0]);
-    //H[key];
+bool HashQuery(Node *& p, string s, int & pID){
+    Node * x = H.HashSearch(pID, s[0]);
+    
+    if (!x)
+        return false;
+    
+    int i = 0;
+    while(x && i < x->label.length() && i < s.length() && x->label[i] == s[i])
+        i++;
+
+    if(i == s.length() && i == x->label.length())
+        return x->isWord;
+    
+    else if (x->label.length() == i && x->fChild){
+        s = s.substr(i, s.length());
+
+        if(x->fChild)
+            return HashQuery(x->fChild, s, x->id);
+        else
+            return false;
+    }
+
+    else
+        return false;
 }
 
 void HashFill(Node *& x, int & pID){
@@ -249,10 +264,11 @@ public:
         H.InitializeHash();
         int i = 0;
         HashFill(root, i);
-        cout<<"\nHash length: "<< H.length<<endl;
+        //cout<<"\nHash length: "<< H.length<<endl;
     }
     bool SearchHash(string s){
-        return true;
+        int pID = 0;
+        return HashQuery(root, s, pID);
     }
 
 };
@@ -277,23 +293,30 @@ int main(){
     cout<<endl;
 
     t.startTimer();
-
     InputD(trie, fDic);
-
-    trie.FillHash();
-
-    InputQ(trie, fQuery);
-
-    InputHQ(trie, fQuery);
-
     t.stopTimer();
+    cout<<"Insering into the linked list took "<<t.getElapsedTime()<<" micro-seconds."<<endl;
     memEnd = memInfo.totalram - memInfo.freeram;
+    cout<< "Total memory used: "<< memEnd <<" bytes."<<endl<<endl;
 
-    cout<<"Insering and queries took "<<t.getElapsedTime()<<" micro-seconds."<<endl
-    << "Total memory used: "<< memEnd <<" bytes."<<endl
-    << "Number of nodes: "<<n<<endl;
+    t.startTimer();
+    InputQ(trie, fQuery);
+    t.stopTimer();
+    cout<<"Linked list queries took "<<t.getElapsedTime()<<" micro-seconds."<<endl<<endl;
 
-    cout << "Total memory used: "<< memEnd <<" bytes."<<endl;
+    t.startTimer();
+    trie.FillHash();
+    t.stopTimer();
+    cout<<"Insering into the Hash took "<<t.getElapsedTime()<<" micro-seconds."<<endl;
+    memEnd = memInfo.totalram - memInfo.freeram;
+    cout<< "Total memory used: "<< memEnd <<" bytes."<<endl<<endl;
+
+    t.startTimer();
+    InputHQ(trie, fQuery);
+    t.stopTimer();
+    cout<<"Hash queries took "<<t.getElapsedTime()<<" micro-seconds."<<endl<<endl;
+
+    cout<< "Number of nodes: "<< n <<endl<<endl;
 
     return 0;
 }
@@ -317,10 +340,12 @@ void InputQ(llTrie & trie, string fQuery){
     fstream fin;
     OpenInput(fin, fQuery);
     string word;
-
+    
+    cout<<"Linked list queries: \n";
     fin >> word;
     while(!fin.eof())
     {   
+    //    trie.Search(word);
         cout<<left<<setw(25)<< word <<" "<< trie.Search(word) << endl;
         fin >> word;
     }
@@ -334,15 +359,17 @@ void InputHQ(llTrie & trie, string fQuery){
     fstream fin;
     OpenInput(fin, fQuery);
     string word;
-/*
+
+    cout<<"Hash queries: \n";
     fin >> word;
     while(!fin.eof())
     {   
+    //    trie.SearchHash(word);
         cout<<left<<setw(25)<< word <<" "<< trie.SearchHash(word) << endl;
         fin >> word;
     }
     cout<< endl;
-*/
+
     fin.close();
 }
 
