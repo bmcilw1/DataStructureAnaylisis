@@ -14,7 +14,8 @@
 
 using namespace std;
 
-unsigned long long n = 0;
+int n = 0;
+int NUMWORDS = 0;
 
 struct Node {
     string label;
@@ -277,6 +278,9 @@ void InputD(llTrie & trie, string fDic);
 void InputQ(llTrie & trie, string fQuery);
 void OpenInput(fstream & fin, string inName);
 void InputHQ(llTrie & trie, string fQuery);
+void StrArrayQuery(string A[], string fQuery);
+bool BinarySearch(string A[], string word, int a, int b);
+void FillArray(string A[], string fDic);
 
 int main(){
     CStopWatch t;
@@ -312,6 +316,13 @@ int main(){
     memEnd = memInfo2.totalram - memInfo2.freeram;
     cout<< "Total memory used: "<< memEnd <<" bytes."<<endl<<endl;
 
+    string A[n];
+    FillArray(A, fDic);
+    t.startTimer();
+    StrArrayQuery(A, fQuery);
+    t.stopTimer();
+    cout<<"Binary searching queries array of words took "<<t.getElapsedTime()<<" micro-seconds."<<endl<<endl;
+
     t.startTimer();
     InputHQ(trie, fQuery);
     t.stopTimer();
@@ -320,7 +331,56 @@ int main(){
     cout<< "Number of nodes: "<< n <<endl
     <<"**Note** the hash memory is dependent on the linked list memory. "<<endl<<endl;
 
+
     return 0;
+}
+
+void FillArray(string A[], string fDic){
+    fstream finD;
+    OpenInput(finD, fDic);
+    string word;
+    
+    finD >> word;
+    while(!finD.eof())
+    {   
+        A[NUMWORDS] = word;
+        NUMWORDS++;
+        finD >> word;
+    }
+    NUMWORDS--;
+    finD.close();
+}
+
+void StrArrayQuery(string A[], string fQuery){
+    fstream finD;
+    OpenInput(finD, fQuery);
+    string word;
+
+    finD >> word;
+    while(!finD.eof())
+    {   
+        //cout<<left<<setw(25)<< word <<" "<< BinarySearch(A, word, 0, NUMWORDS) << endl;
+        BinarySearch(A, word, 0, NUMWORDS);
+        finD >> word;
+    }
+    
+    finD.close();
+}
+
+bool BinarySearch(string A[], string word, int a, int b){
+    int k = (a + b) / 2;
+
+    if( k < a || k > b)
+        return false;
+
+    else if (A[k].compare(word) == 0)
+        return true;
+
+    else if(A[k].compare(word) > 0)
+        return BinarySearch(A, word, a, k-1);
+        
+    else 
+        return BinarySearch(A, word, k+1, b);
 }
 
 void InputD(llTrie & trie, string fDic){
@@ -343,12 +403,11 @@ void InputQ(llTrie & trie, string fQuery){
     OpenInput(fin, fQuery);
     string word;
     
-    cout<<"Linked list queries: \n";
     fin >> word;
     while(!fin.eof())
     {   
-    //    trie.Search(word);
-        cout<<left<<setw(25)<< word <<" "<< trie.Search(word) << endl;
+        trie.Search(word);
+    //    cout<<left<<setw(25)<< word <<" "<< trie.Search(word) << endl;
         fin >> word;
     }
     cout<<endl;
@@ -362,12 +421,11 @@ void InputHQ(llTrie & trie, string fQuery){
     OpenInput(fin, fQuery);
     string word;
 
-    cout<<"Hash queries: \n";
     fin >> word;
     while(!fin.eof())
     {   
-    //    trie.SearchHash(word);
-        cout<<left<<setw(25)<< word <<" "<< trie.SearchHash(word) << endl;
+        trie.SearchHash(word);
+    //    cout<<left<<setw(25)<< word <<" "<< trie.SearchHash(word) << endl;
         fin >> word;
     }
     cout<< endl;
